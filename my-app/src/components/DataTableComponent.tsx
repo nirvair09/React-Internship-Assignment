@@ -102,9 +102,7 @@ const DataTableComponent = () => {
 
   return (
     <div>
-      {/* Title */}
-      <h1 style={{ textAlign: 'center' }}>Artworks List</h1>
-
+      
       {/* Top right panel with total selected rows and clear button */}
       <div style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 1000, display: 'flex', flexDirection: 'column' }}>
         <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center' }}>
