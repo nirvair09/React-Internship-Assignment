@@ -20,7 +20,7 @@ const DataTableComponent = () => {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState(false);
   const [first, setFirst] = useState(0);
-  const [rows, setRows] = useState(10);
+  const [rows, setRows] = useState(12);
   const [totalRecords, setTotalRecords] = useState(0);
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const [nRows, setNRows] = useState(0);
@@ -109,7 +109,7 @@ const DataTableComponent = () => {
   return (
     <div>
       {/* Top right panel with total selected rows and clear button */}
-      <div style={{ position: 'fixed', top: '1rem', right: '1rem', zIndex: 1000, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ position:'absolute', top: '1rem', right: '1rem', zIndex: 1000, display: 'flex', flexDirection: 'column' }}>
         <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center' }}>
           <span style={{ marginRight: '1rem' }}>{selectedRows.size} rows selected</span>
           <Button 
