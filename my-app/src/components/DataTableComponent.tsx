@@ -64,30 +64,34 @@ const DataTableComponent = () => {
 
   // Fetch all pages needed and then select rows
   const handleSelectTopNRows = async () => {
-    let totalFetchedArtworks: Artwork[] = [];
-    let fetchedPages = new Set<number>();
+    setLoading(true); // Start loading state
 
-    // Determine all pages to fetch
-    for (let i = 1; i <= Math.ceil(nRows / 12); i++) { // Assuming 12 rows per page
+    const pagesToFetch = Math.ceil(nRows / 12); // Assuming 12 rows per page
+    let totalFetchedArtworks: Artwork[] = [];
+    let updatedSelectedRows = new Set(selectedRows);
+
+    // Fetch all required pages
+    for (let i = 1; i <= pagesToFetch; i++) {
       if (!pageData[i]) {
-        await fetchArtworks(i, 12);
+        await fetchArtworks(i, 12); // Fetch page if not already fetched
       }
-      totalFetchedArtworks = totalFetchedArtworks.concat(pageData[i]);
-      fetchedPages.add(i);
+      totalFetchedArtworks = totalFetchedArtworks.concat(pageData[i] || []);
     }
 
     // Update selected rows
-    const updatedSelectedRows = new Set(selectedRows);
     let count = 0;
-
     for (const artwork of totalFetchedArtworks) {
       if (count >= nRows) break;
       updatedSelectedRows.add(artwork.id);
       count++;
     }
 
-    setSelectedRows(updatedSelectedRows);
-    op.current?.hide();  // Hide overlay panel after submission
+    // Update state with a slight delay to ensure it processes correctly
+    setTimeout(() => {
+      setSelectedRows(updatedSelectedRows);
+      setLoading(false); // End loading state
+      op.current?.hide(); // Hide overlay panel
+    }, 100);
   };
 
   // Clear all selected rows
@@ -102,16 +106,15 @@ const DataTableComponent = () => {
 
   return (
     <div>
-      
       {/* Top right panel with total selected rows and clear button */}
       <div style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 1000, display: 'flex', flexDirection: 'column' }}>
         <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center' }}>
           <span style={{ marginRight: '1rem' }}>{selectedRows.size} rows selected</span>
-          <Button 
-            label="Clear All" 
-            onClick={clearAllSelections} 
-            className="p-button-danger p-ml-2" 
-            style={{ backgroundColor: 'red', borderColor: 'red' }} 
+          <Button
+            label="Clear All"
+            onClick={clearAllSelections}
+            className="p-button-danger p-ml-2"
+            style={{ backgroundColor: 'red', borderColor: 'red' }}
           />
         </div>
       </div>
@@ -126,11 +129,11 @@ const DataTableComponent = () => {
             placeholder="Enter number of rows"
           />
         </div>
-        <Button 
-          label="Submit" 
-          onClick={handleSelectTopNRows} 
-          className="p-button-primary" 
-          style={{ backgroundColor: 'blue', borderColor: 'blue' }} 
+        <Button
+          label="Submit"
+          onClick={handleSelectTopNRows}
+          className="p-button-primary"
+          style={{ backgroundColor: 'blue', borderColor: 'blue' }}
         />
       </OverlayPanel>
 
@@ -147,7 +150,7 @@ const DataTableComponent = () => {
         selection={artworks.filter(artwork => selectedRows.has(artwork.id))}
         onSelectionChange={(e) => {
           const selectedIds = new Set(e.value.map((item: Artwork) => item.id));
-          setSelectedRows(selectedIds);
+          setSelectedRows(prev => new Set([...prev, ...selectedIds]));
         }}
         selectionMode="multiple"
       >
