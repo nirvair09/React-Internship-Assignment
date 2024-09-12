@@ -20,7 +20,6 @@ const DataTableComponent = () => {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState(false);
   const [first, setFirst] = useState(0);
-  const [rows, setRows] = useState(12);
   const [totalRecords, setTotalRecords] = useState(0);
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const [nRows, setNRows] = useState(0);
@@ -50,8 +49,8 @@ const DataTableComponent = () => {
 
   // Initial fetch when component mounts or page changes
   useEffect(() => {
-    fetchArtworks(currentPage, rows);
-  }, [currentPage, rows]);
+    fetchArtworks(currentPage, 12); // Fetch with default 12 rows
+  }, [currentPage]);
 
   // Handle page change event
   const onPageChange = (event: any) => {
@@ -59,7 +58,7 @@ const DataTableComponent = () => {
     setCurrentPage(newPage);
     setFirst(event.first);
     if (!pageData[newPage]) {
-      fetchArtworks(newPage, rows);
+      fetchArtworks(newPage, 12);
     }
   };
 
@@ -69,9 +68,9 @@ const DataTableComponent = () => {
     let fetchedPages = new Set<number>();
 
     // Determine all pages to fetch
-    for (let i = 1; i <= Math.ceil(nRows / rows); i++) {
+    for (let i = 1; i <= Math.ceil(nRows / 12); i++) { // Assuming 12 rows per page
       if (!pageData[i]) {
-        await fetchArtworks(i, rows);
+        await fetchArtworks(i, 12);
       }
       totalFetchedArtworks = totalFetchedArtworks.concat(pageData[i]);
       fetchedPages.add(i);
@@ -101,15 +100,13 @@ const DataTableComponent = () => {
     op.current?.toggle(event);
   };
 
-  // Determine if a row is selected
-  const isRowSelected = (rowId: string) => {
-    return selectedRows.has(rowId);
-  };
-
   return (
     <div>
+      {/* Title */}
+      <h1 style={{ textAlign: 'center' }}>Artworks List</h1>
+
       {/* Top right panel with total selected rows and clear button */}
-      <div style={{ position:'absolute', top: '1rem', right: '1rem', zIndex: 1000, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 1000, display: 'flex', flexDirection: 'column' }}>
         <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center' }}>
           <span style={{ marginRight: '1rem' }}>{selectedRows.size} rows selected</span>
           <Button 
@@ -131,13 +128,18 @@ const DataTableComponent = () => {
             placeholder="Enter number of rows"
           />
         </div>
-        <Button label="Submit" onClick={handleSelectTopNRows} className="p-button-primary" style={{ backgroundColor: 'blue', borderColor: 'blue' }} />
+        <Button 
+          label="Submit" 
+          onClick={handleSelectTopNRows} 
+          className="p-button-primary" 
+          style={{ backgroundColor: 'blue', borderColor: 'blue' }} 
+        />
       </OverlayPanel>
 
       <DataTable
         value={artworks}
         paginator
-        rows={rows}
+        rows={12} // Assuming 12 rows per page
         first={first}
         totalRecords={totalRecords}
         lazy
